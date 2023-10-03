@@ -1,16 +1,13 @@
+from abc import ABC, abstractmethod
 from auth import auth_scylla
 from datetime import datetime
-import logging
+from fake_useragent import UserAgent
 
 
-class BaseScrapper:
+class BaseScrapper(ABC):
 
    def __init__(self):
-      
       self.session = auth_scylla
-
-   def collect(self):
-      pass
 
    def __log(self, msg, source, level="INFO"):
 
@@ -21,3 +18,12 @@ class BaseScrapper:
       INSERT INTO LOGSTORE (msg, level, source, created_ts) VALUES (%s, %s, %s, %s)
       """
       self.session.execute(insert_stmt, [msg, level, source, datetime.now()])
+
+   def __get_new_ua(self):
+      ua = UserAgent()
+      return ua.random
+
+   @abstractmethod
+   def collect_next(self):
+      pass
+
