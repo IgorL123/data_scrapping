@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS CLPapers (
     year smallint,
     journal text,
     keywords set<text>,
-    collected_ts timestamp
+    collecdted_ts timestamp
 
 ) WITH comment='Entity for cyberleninka papers';
 

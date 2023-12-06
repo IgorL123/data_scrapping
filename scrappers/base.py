@@ -7,9 +7,9 @@ from fake_useragent import UserAgent
 class BaseScrapper(ABC):
 
    def __init__(self):
-      self.session = auth_scylla
+      self.session = auth_scylla()
 
-   def __log(self, msg, source, level="INFO"):
+   def log(self, msg, source, level="INFO"):
 
       if level not in ["INFO", "ERROR", "DEBUG", "CRITICAL"]:
          raise ValueError("Incorrect logging level")
@@ -18,12 +18,12 @@ class BaseScrapper(ABC):
       INSERT INTO LOGSTORE (msg, level, source, created_ts) VALUES (%s, %s, %s, %s)
       """
       self.session.execute(insert_stmt, [msg, level, source, datetime.now()])
+   
 
-   def __get_new_ua(self):
+   def get_new_ua(self):
       ua = UserAgent()
       return ua.random
 
    @abstractmethod
-   def collect_next(self):
-      pass
-
+   def collect(self):
+      raise NotImplementedError

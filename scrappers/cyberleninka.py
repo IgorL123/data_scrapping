@@ -1,58 +1,56 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import pandas as pd
-import traceback
+from datetime import datetime
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from fake_useragent import UserAgent
+from base import BaseScrapper
 from time import sleep
-
-
-class CyberScrapper:
+ 
+ 
+class CyberScrapper(BaseScrapper):
     """
     Collecting pages urls and texts from cyberleninka.ru
     """
-    def __init__(self, base_url, max_volume, save_path, num_page=None):
-        self.url = base_url
-        self.max_vol = max_volume
-        self.path = save_path
-        self.num_page = num_page
-        self.columns = ["url", "author", "title", "text", "year", "labels", "views", 
-                                          "downloads", "likes", "dislikes", "journal"]
-        self.data = pd.DataFrame(columns=self.columns)
-        
-    def get(self):
-        
-        ua = UserAgent()
-        user_agent = ua.random
-        
+
+    def __init__(self):
+        BaseScrapper.__init__(self)
+        self.url = "https://cyberleninka.ru/article/c/economics-and-business"
+
+    def collect(self):
+        sleeping_time = 20
+
         driver = webdriver.Chrome()
-        
-        driver.execute_cdp_cmd("Network.setUserAgentOverride", {"userAgent": user_agent})
-        if self.num_page:
-            driver.get(self.url + f"/{self.num_page}")
+        driver.execute_cdp_cmd("Network.setUserAgentOverride", {"userAgent": self.get_new_ua()})
+
+        num_page = self.session.execute("SELECT max(num_page) as num_page FROM CLPAPERS").one().num_page
+        last_id = self.session.execute("SELECT max(id) as id FROM CLPAPERS").one().id
+
+        if not last_id:
+            last_id = 0
+
+        if num_page:
+            driver.get(self.url + f"/{num_page}")
         else:
             driver.get(self.url)
-        num = self.max_vol
         
         # num of li elements on the page
         last_paper_on_page = -7
-        if self.num_page:
-            page_num = self.num_page
-        else:
+        if not num_page:
             page_num = 2
-        
+        num = 9
+
         try:
             while num:
                 
-                print(f"Papers {self.data.shape[0]} saved")
                 elements = driver.find_elements(By.TAG_NAME, "li")
                 articles = elements[:last_paper_on_page]
                 next_page = self.url + f"/{page_num}"
-                
+                num -= 1
+
                 for article in articles:
                     
-                    num -= 1
+                    
                     href = article.find_element(By.TAG_NAME, "a").get_attribute("href") 
                     driver.get(href)
                     
@@ -63,7 +61,7 @@ class CyberScrapper:
                     for obj in objects:
                         text += obj.text
                     
-                    # author
+                    # attributes
                     try:
                         author = driver.find_element(By.CLASS_NAME, "hl").text
                     except:
@@ -89,43 +87,54 @@ class CyberScrapper:
                     except:
                         journal = None
                     try:
-                        words = [i.text for i in driver.find_element(By.CLASS_NAME, "full.keywords").find_elements(By.CLASS_NAME, "hl.to-search")]
+                        words = set([i.text for i in driver.find_element(By.CLASS_NAME, "full.keywords").find_elements(By.CLASS_NAME, "hl.to-search")])
                     except:
                         words = None
                     try:
                         title = driver.find_element(By.TAG_NAME, "i").text
                     except:
                         title = None
-                    
-                    lst = [(href, 
-                            author, 
+                    last_id += 1
+
+                    lst = [ last_id,
+                            href, 
+                            author,
+                            datetime.now(),
+                            int(likes[1]),
+                            journal,
+                            int(likes[0]),
+                            text,
+                            num_page,
                             title,
-                            text, 
-                            year, 
-                            words, 
-                            views, 
-                            down, 
-                            likes[0], 
-                            likes[1], 
-                            journal)]
-                    to_add = pd.DataFrame(lst, columns=self.columns)
-                    self.data = pd.concat([self.data, to_add], ignore_index=True)
-                    sleep(10)
+                            int(year), 
+                            words,
+                            int(views),
+                            int(down)
+                            ]
+                    self.session.execute("""
+                                        INSERT INTO CLPAPERS ( 
+                                            id, 
+                                            url, author, collected_ts, 
+                                            dislikes, journal, likes, 
+                                            paper_text, num_page, title,
+                                            year, keywords, views, downloads)
+                                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                        """, lst)
+                    sleep(sleeping_time)
                     driver.back()
-                
-                # Change UA 
-                driver.execute_cdp_cmd("Network.setUserAgentOverride", {"userAgent": ua.random})
+
+                self.log("Saved some papers", source="cyber_leninka")
+
+                driver.execute_cdp_cmd("Network.setUserAgentOverride", {"userAgent": self.get_new_ua()})
                 driver.get(next_page)
                 page_num += 1
                 
         except Exception as ex:
-            print("Last page:", page_num)
-            traceback.print_exc()
+            self.log(f"Some error occured: {ex}", level="ERROR", source="cyber_leninka")
             driver.quit()
             
-        print("Last page:", page_num)
-        return self.data
-    
-    def save(self):
-        self.data.to_csv(self.path)
-    
+
+
+if __name__ == "__main__":
+    run = CyberScrapper()
+    run.collect()

@@ -8,9 +8,9 @@ def auth_scylla(keyspace="main"):
    config = configparser.ConfigParser()
    config.read('config.ini')
 
-   ip = config['scyllaDB']['ip']
-   user = config['scyllaDB']['user']
-   pasw = config['scyllaDB']['pasw']
+   ip = config['Cluster']['ip']
+   user = config['Cluster']['user']
+   pasw = config['Cluster']['pasw']
 
    auth_provider = PlainTextAuthProvider(username=user, password=pasw)
    cluster = Cluster([ip], auth_provider=auth_provider)
