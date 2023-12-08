@@ -4,27 +4,33 @@ WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor' : 1
 USE main;
 
 CREATE TABLE IF NOT EXISTS CLPapers (
-    id int PRIMARY KEY,
+    id int,
+    num_page int,
+    url text,
     paper_text text,
     title text,
     author text,
+    views int,
+    downloads int,
     likes smallint, 
     dislikes smallint,
     year smallint,
     journal text,
     keywords set<text>,
-    collecdted_ts timestamp
-
+    collected_ts timestamp,
+    PRIMARY KEY(id, num_page)
 ) WITH comment='Entity for cyberleninka papers';
 
 CREATE TABLE IF NOT EXISTS News (
-    id int PRIMARY KEY,
-    new_text text,
+    news_text text,
     url text,
-    source text, 
+    author text,
+    title text,
+    views int,
+    keywords set<text>,
+    category text,
     collected_ts timestamp,
-    info blob
-
+    PRIMARY KEY (url, collected_ts)
 ) WITH comment='Entity for news';
 
 CREATE TABLE IF NOT EXISTS Urls(
@@ -52,4 +58,4 @@ CREATE TABLE IF NOT EXISTS LogStore(
 );
 
 INSERT INTO LogStore (msg, level, source, created_ts) 
-    VALUES ("Server initialized", "INFO", "root", toTimestamp(now()));
+    VALUES ('Server initialized', 'INFO', 'root', toTimestamp(now()));
