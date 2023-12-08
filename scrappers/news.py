@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from datetime import datetime
-from base import BaseScrapper
+from .base import BaseScrapper
 from selenium.webdriver.chrome.options import Options
 from time import sleep
 

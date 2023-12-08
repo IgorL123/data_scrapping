@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from auth import auth_scylla
+from .auth import auth_scylla
 from datetime import datetime
 from fake_useragent import UserAgent
 import logging
@@ -13,7 +13,7 @@ class BaseScrapper(ABC):
         self.session = auth_scylla()
         self.sleep_time = 9
 
-        self.logger = logging.getLogger(name="base_logger")
+        self.logger = logging.getLogger(name="base")
         self.logger.handlers.clear()
         self.logger.setLevel(logging.INFO)
 

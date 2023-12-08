@@ -1,9 +1,35 @@
-from cassandra.cluster import Cluster
-from cassandra.auth import PlainTextAuthProvider
-import configparser
-from scrappers.auth import auth_scylla
+from fastapi import FastAPI
+from fastapi_utils.tasks import repeat_every
+from scrappers import NewsRBCScrapper
+from scrappers import CyberScrapper
 
-with auth_scylla() as session:
-    rows = set([i.url for i in session.execute('SELECT url FROM URLS').all()])
-    print(rows)
-    print(len(rows))
+app = FastAPI()
+
+PERIOD = 6 * 60 * 60  # 3 times a day
+
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
+
+
+def getting_news_urls():
+    news = NewsRBCScrapper()
+    news.get_urls()
+    news.collect()
+
+
+def getting_papers():
+    run = CyberScrapper()
+    run.collect()
+
+
+@app.on_event("startup")
+@repeat_every(seconds=PERIOD)
+def r_task() -> None:
+    print(1)
+    getting_news_urls()
+    print(2)
+    getting_papers()
+    print(3)
+

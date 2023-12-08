@@ -1,10 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import pandas as pd
 from datetime import datetime
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from base import BaseScrapper
+from .base import BaseScrapper
 from time import sleep
 
 
@@ -53,13 +52,14 @@ class CyberScrapper(BaseScrapper):
         last_paper_on_page = -7
         if not num_page:
             num_page = 1
-        num = 9
+        num = 500
 
         try:
             while num:
                 elements = driver.find_elements(By.TAG_NAME, "li")
                 articles = elements[:last_paper_on_page]
                 next_page = self.url + f"/{num_page + 1}"
+                num -= 1
 
                 for article in articles:
                     href = article.find_element(By.TAG_NAME, "a").get_attribute("href")
