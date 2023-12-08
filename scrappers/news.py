@@ -165,7 +165,7 @@ class NewsRBCScrapper(BaseScrapper):
                 ]
 
                 self.session.execute(
-                    "INSERT INTO NEWS (news_text, url, author, title, "
+                    "INSERT INTO NEWS (news_text, url, author, title, views,"
                     "collected_ts, keywords, category) "
                     "VALUES (%s, %s, %s, %s, %s, %s, %s)",
                     to_insert,
