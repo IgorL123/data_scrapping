@@ -42,6 +42,8 @@ class CyberScrapper(BaseScrapper):
         if not last_id:
             last_id = 0
 
+        self.session.execute("DELETE FROM CLPAPERS WHERE num_page = %s", num_page)
+
         if num_page:
             driver.get(self.url + f"/{num_page}")
         else:

@@ -188,9 +188,13 @@ class NewsRBCScrapper(BaseScrapper):
 
         driver.quit()
 
+    def test_logs(self):
+        self.log("testing logs", level="INFO", source="news_")
+
 
 if __name__ == "__main__":
     run = NewsRBCScrapper()
     #run.get_urls()
-    run.collect()
+    #run.collect()
+    run.test_logs()
 
