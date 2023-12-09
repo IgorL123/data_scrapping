@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from datetime import datetime
-from .base import BaseScrapper
+from base import BaseScrapper
 from selenium.webdriver.chrome.options import Options
 from time import sleep
 
@@ -41,7 +41,8 @@ class NewsRBCScrapper(BaseScrapper):
                 popup = driver.find_element(By.CLASS_NAME, "live-tv-popup__close")
                 popup.click()
             except Exception as e:
-                self.log(msg=f"Error occured {e}", level="ERROR", source="GET_URLS_RBC")
+                print("None popup")
+                #self.log(msg=f"Error occured {e}", level="ERROR", source="GET_URLS_RBC")
 
             urls = set(
                 [i.url for i in self.session.execute("SELECT url FROM URLS").all()]
@@ -88,7 +89,7 @@ class NewsRBCScrapper(BaseScrapper):
         options.add_argument("--headless=new")
 
         driver = webdriver.Chrome(options=options)
-        urls = [i.url for i in self.session.execute("SELECT url FROM URLS").all()]
+        urls = [i.url for i in self.session.execute("SELECT url FROM URLS WHERE scrapped = False ALLOW FILTERING").all()]
         self.log(f"Ready to scrapp {len(urls)} urls", level="INFO", source="news_collect")
 
         for i in range(len(urls)):
@@ -159,7 +160,8 @@ class NewsRBCScrapper(BaseScrapper):
                     urls[i],
                     author,
                     title,
-                    int(views.replace(" ", "")),
+                    int(views.replace(" ", "")) if views else None,
+                    datetime.now(),
                     keywords,
                     category,
                 ]
@@ -167,7 +169,7 @@ class NewsRBCScrapper(BaseScrapper):
                 self.session.execute(
                     "INSERT INTO NEWS (news_text, url, author, title, views,"
                     "collected_ts, keywords, category) "
-                    "VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                    "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
                     to_insert,
                 )
                 self.session.execute(
@@ -183,10 +185,11 @@ class NewsRBCScrapper(BaseScrapper):
 
             sleep(self.sleep_time)
 
-            if i % 50 == 0:
+            if i % 50 == 0 and i != 0:
                 self.log(f"Collected {i} news", level="INFO", source="news_collect")
 
         driver.quit()
+        self.log(f"Collected {len(urls)} news", level="INFO", source="news_collect")
 
     def test_logs(self):
         self.log("testing logs", level="INFO", source="news_")
@@ -194,7 +197,6 @@ class NewsRBCScrapper(BaseScrapper):
 
 if __name__ == "__main__":
     run = NewsRBCScrapper()
-    #run.get_urls()
-    #run.collect()
-    run.test_logs()
+    run.get_urls()
+    run.collect()
 

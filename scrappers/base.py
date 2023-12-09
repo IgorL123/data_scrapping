@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from .auth import auth_scylla
+from auth import auth_scylla
 from datetime import datetime
 from fake_useragent import UserAgent
 import logging
@@ -14,7 +14,8 @@ class BaseScrapper(ABC):
         self.sleep_time = 9
 
         self.logger = logging.getLogger(name="base")
-        self.logger.handlers.clear()
+        for h in self.logger.handlers:
+            self.logger.removeHandler(h)
         self.logger.setLevel(logging.INFO)
 
         file_handler = RotatingFileHandler(

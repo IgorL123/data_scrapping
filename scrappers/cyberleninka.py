@@ -3,7 +3,7 @@ from selenium.webdriver.common.by import By
 from datetime import datetime
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from .base import BaseScrapper
+from base import BaseScrapper
 from time import sleep
 
 
@@ -35,14 +35,17 @@ class CyberScrapper(BaseScrapper):
             last_id = (
                 self.session.execute("SELECT max(id) as id FROM CLPAPERS").one().id
             )
+
         except Exception as e:
             print(e)
 
         if not last_id:
             last_id = 0
 
-        self.session.execute("DELETE FROM CLPAPERS WHERE num_page = %s", num_page)
+        #self.session.execute("DELETE FROM CLPAPERS WHERE num_page = %s", [num_page])
 
+        num_page += 1
+        self.log(f"Start scrapping from page {num_page}", level="INFO", source="papers_collect")
         if num_page:
             driver.get(self.url + f"/{num_page}")
         else:
@@ -52,7 +55,7 @@ class CyberScrapper(BaseScrapper):
         last_paper_on_page = -7
         if not num_page:
             num_page = 1
-        num = 500
+        num = 25
 
         try:
             while num:
@@ -133,16 +136,16 @@ class CyberScrapper(BaseScrapper):
                         href,
                         author,
                         datetime.now(),
-                        int(likes[1]),
+                        int(likes[1]) if likes[1] else None,
                         journal,
-                        int(likes[0]),
+                        int(likes[0]) if likes[0] else None,
                         text,
                         num_page,
                         title,
-                        int(year),
+                        int(year) if year else None,
                         words,
-                        int(views),
-                        int(down),
+                        int(views) if views else None,
+                        int(down) if down else None,
                     ]
                     self.session.execute(
                         """
@@ -159,7 +162,7 @@ class CyberScrapper(BaseScrapper):
                     sleep(sleeping_time)
                     driver.back()
 
-                self.log("Saved some papers", source="cyber_leninka")
+                self.log(f"Saved {num * 20} papers", source="cyber_leninka")
 
                 driver.execute_cdp_cmd(
                     "Network.setUserAgentOverride", {"userAgent": self.get_new_ua()}
