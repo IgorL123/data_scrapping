@@ -30,6 +30,7 @@ class NewsRBCScrapper(BaseScrapper):
 
         options = Options()
         options.add_argument("--headless=new")
+        options.add_argument("--no-sandbox")
         driver = webdriver.Chrome(options=options)
 
         for url_main in self.urls:
@@ -87,6 +88,7 @@ class NewsRBCScrapper(BaseScrapper):
     def collect(self):
         options = Options()
         options.add_argument("--headless=new")
+        options.add_argument("--no-sandbox")
 
         driver = webdriver.Chrome(options=options)
         urls = [i.url for i in self.session.execute("SELECT url FROM URLS WHERE scrapped = False ALLOW FILTERING").all()]

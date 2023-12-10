@@ -20,6 +20,7 @@ class CyberScrapper(BaseScrapper):
         sleeping_time = 20
         options = Options()
         options.add_argument("--headless=new")
+        options.add_argument("--no-sandbox")
 
         driver = webdriver.Chrome(options=options)
         driver.execute_cdp_cmd(
@@ -162,7 +163,7 @@ class CyberScrapper(BaseScrapper):
                     sleep(sleeping_time)
                     driver.back()
 
-                self.log(f"Saved {num * 20} papers", source="cyber_leninka")
+                self.log(f"Saved {20} papers", source="cyber_leninka")
 
                 driver.execute_cdp_cmd(
                     "Network.setUserAgentOverride", {"userAgent": self.get_new_ua()}

@@ -5,7 +5,7 @@ import configparser
 
 def auth_scylla(keyspace="main"):
     config = configparser.ConfigParser()
-    config.read("../config.ini")
+    config.read("config.ini")
 
     ip = config["Cluster"]["ip"]
     user = config["Cluster"]["user"]
