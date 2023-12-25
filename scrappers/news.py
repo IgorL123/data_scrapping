@@ -14,8 +14,9 @@ class NewsRBCScrapper(BaseScrapper):
     def __init__(self):
         BaseScrapper.__init__(self)
         self.urls = [
-            "https://www.rbc.ru/finances/?utm_source=topline",
-            "https://www.rbc.ru/economics/?utm_source=topline",
+            "https://www.rbc.ru/tags?tag=%D0%AD%D0%BA%D0%BE%D0%BD%D0%BE%D0%BC%D0%B8%D0%BA%D0%B0"
+            #"https://www.rbc.ru/finances/?utm_source=topline",
+            #"https://www.rbc.ru/economics/?utm_source=topline",
         ]
 
     def get_urls(self):
@@ -26,12 +27,12 @@ class NewsRBCScrapper(BaseScrapper):
                 VALUES (%s, %s, %s)
                 """,
                 [url, datetime.now(), False],
-            )
-
+                )
         options = Options()
         options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
         driver = webdriver.Chrome(options=options)
+        driver.set_page_load_timeout(100)
 
         for url_main in self.urls:
             driver.get(url_main)

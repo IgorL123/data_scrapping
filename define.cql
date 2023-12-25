@@ -33,6 +33,19 @@ CREATE TABLE IF NOT EXISTS News (
     PRIMARY KEY (url, collected_ts)
 ) WITH comment='Entity for news';
 
+CREATE TABLE IF NOT EXISTS TgPosts (
+    created_date timestamp,
+    message_raw text,
+    message_lemm text,
+    fwd_from text,
+    views float,
+    forwards float,
+    source_ch text,
+    collected_ts timestamp,
+    message_id int,
+    PRIMARY KEY (source_ch, created_date)
+) WITH comment='Entity for telegram channel posts';
+
 CREATE TABLE IF NOT EXISTS Urls(
     url text PRIMARY KEY,
     scrapped boolean,

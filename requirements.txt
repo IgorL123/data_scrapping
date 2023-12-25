@@ -64,3 +64,7 @@ wasabi==1.1.2
 weasel==0.3.1
 wsproto==1.2.0
 yarl==1.9.2
+
+uvicorn==0.24.0.post1
+fastapi==0.104.1
+Telethon==1.33.1

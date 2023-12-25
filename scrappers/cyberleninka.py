@@ -23,6 +23,7 @@ class CyberScrapper(BaseScrapper):
         options.add_argument("--no-sandbox")
 
         driver = webdriver.Chrome(options=options)
+        driver.set_page_load_timeout(100)
         driver.execute_cdp_cmd(
             "Network.setUserAgentOverride", {"userAgent": self.get_new_ua()}
         )
