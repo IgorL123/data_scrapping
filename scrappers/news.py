@@ -14,7 +14,10 @@ class NewsRBCScrapper(BaseScrapper):
     def __init__(self):
         BaseScrapper.__init__(self)
         self.urls = [
-            "https://www.rbc.ru/tags?tag=%D0%AD%D0%BA%D0%BE%D0%BD%D0%BE%D0%BC%D0%B8%D0%BA%D0%B0"
+            "https://www.rbc.ru/tags?tag=%D0%91%D0%B8%D0%B7%D0%BD%D0%B5%D1%81",
+            "https://www.rbc.ru/tags?tag=%D1%84%D0%B8%D0%BD%D0%B0%D0%BD%D1%81%D1%8B",
+            "https://www.rbc.ru/tags?tag=%D0%B4%D0%B5%D0%BD%D1%8C%D0%B3%D0%B8",
+            "https://www.rbc.ru/tags?tag=%D0%AD%D0%BA%D0%BE%D0%BD%D0%BE%D0%BC%D0%B8%D0%BA%D0%B0",
             #"https://www.rbc.ru/finances/?utm_source=topline",
             #"https://www.rbc.ru/economics/?utm_source=topline",
         ]
@@ -31,6 +34,13 @@ class NewsRBCScrapper(BaseScrapper):
         options = Options()
         options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
+        options.add_argument("--ignore-certificate-errors")
+        options.add_argument("--ignore-ssl-errors")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("enable-features=NetworkServiceInProcess")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--dns-prefetch-disable")
+        options.add_argument("--disable-gpu")
         driver = webdriver.Chrome(options=options)
         driver.set_page_load_timeout(100)
 
@@ -57,7 +67,7 @@ class NewsRBCScrapper(BaseScrapper):
 
             while not end_page:
                 try:
-                    objects = driver.find_elements(By.CLASS_NAME, "item__link")
+                    objects = driver.find_elements(By.CLASS_NAME, "search-item__link")
 
                     for obj in objects:
                         u = obj.get_attribute("href")
@@ -90,6 +100,13 @@ class NewsRBCScrapper(BaseScrapper):
         options = Options()
         options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
+        options.add_argument("--ignore-certificate-errors")
+        options.add_argument("--ignore-ssl-errors")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("enable-features=NetworkServiceInProcess")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--dns-prefetch-disable")
+        options.add_argument("--disable-gpu")
 
         driver = webdriver.Chrome(options=options)
         urls = [i.url for i in self.session.execute("SELECT url FROM URLS WHERE scrapped = False ALLOW FILTERING").all()]

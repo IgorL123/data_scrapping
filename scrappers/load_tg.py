@@ -7,9 +7,11 @@ PATH = "tg_chats.parquet"
 dtf = pd.read_parquet(PATH, engine="pyarrow")
 session = auth_scylla()
 
+# rian_ru markettwits
+
 with open("old_channels", "r") as file:
     channels = file.readlines()
-    channels = [i.strip() for i in channels][5:]
+    channels = [i.strip() for i in channels][14:]
 
 
 dtf["fwd_from"] = dtf["fwd_from"].apply(lambda x: str(x) if x else None)
